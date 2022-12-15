@@ -65,3 +65,8 @@ test('tokenize names', () => {
         }]
     )
 })
+
+test('tokenize an empty string to an empty array', () => {
+    const code = '';
+    expect(tokenizer(code)).toEqual([])
+})
