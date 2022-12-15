@@ -1,4 +1,4 @@
-const tokenizer = require('../built/superTinyCompiler');
+const tokenizer = require('../built/tokenizer');
 
 test('tokenize left parenthesis', () => {
     const code = '('
