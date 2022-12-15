@@ -12,14 +12,14 @@ function tokenizer(input) {
             current++;
             continue;
         }
-        // if (char === ')') {
-        //     tokens.push({
-        //         type: 'paren',
-        //         value: ')',
-        //     })
-        //     current ++;
-        //     continue;
-        // }
+        if (char === ')') {
+            tokens.push({
+                type: 'paren',
+                value: ')',
+            });
+            current++;
+            continue;
+        }
         const WHITESPACE = /\s/;
         if (WHITESPACE.test(char)) {
             current++;
