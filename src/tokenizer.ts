@@ -15,7 +15,7 @@ function tokenizer(input: string): Tokens {
     let tokens: Tokens = [];
 
     while (current < input.length) {
-        let char = input[current];
+        let char: string = input[current] ?? '';
 
         if (char === '(') {
             tokens.push({
@@ -50,7 +50,7 @@ function tokenizer(input: string): Tokens {
 
             while (NUMBERS.test(char)) {
                 value += char;
-                char = input[++current];
+                char = input[++current] ?? '';
             }
 
             tokens.push({ type: 'number', value })
@@ -61,17 +61,17 @@ function tokenizer(input: string): Tokens {
             let value = '';
 
             // skip opening double quote
-            char = input[++current];
+            char = input[++current] ?? '';
 
             while (char !== '"') {
                 value += char;
-                char = input[++current];
+                char = input[++current] ?? '';
             }
 
             tokens.push({ type: 'string', value})
 
             // skip the closing double quote
-            char = input[++current]
+            char = input[++current] ?? ''
 
             continue;
         }
@@ -82,7 +82,7 @@ function tokenizer(input: string): Tokens {
 
             while (LETTERS.test(char)) {
                 value += char;
-                char = input[++current];
+                char = input[++current] ?? '';
             }
 
             tokens.push({ type: 'name', value});

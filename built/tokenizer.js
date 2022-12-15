@@ -3,7 +3,7 @@ function tokenizer(input) {
     let current = 0;
     let tokens = [];
     while (current < input.length) {
-        let char = input[current];
+        let char = input[current] ?? '';
         if (char === '(') {
             tokens.push({
                 type: 'paren',
@@ -30,7 +30,7 @@ function tokenizer(input) {
             let value = '';
             while (NUMBERS.test(char)) {
                 value += char;
-                char = input[++current];
+                char = input[++current] ?? '';
             }
             tokens.push({ type: 'number', value });
             continue;
@@ -38,14 +38,14 @@ function tokenizer(input) {
         if (char === '"') {
             let value = '';
             // skip opening double quote
-            char = input[++current];
+            char = input[++current] ?? '';
             while (char !== '"') {
                 value += char;
-                char = input[++current];
+                char = input[++current] ?? '';
             }
             tokens.push({ type: 'string', value });
             // skip the closing double quote
-            char = input[++current];
+            char = input[++current] ?? '';
             continue;
         }
         const LETTERS = /[a-z]/i;
@@ -53,7 +53,7 @@ function tokenizer(input) {
             let value = '';
             while (LETTERS.test(char)) {
                 value += char;
-                char = input[++current];
+                char = input[++current] ?? '';
             }
             tokens.push({ type: 'name', value });
             continue;

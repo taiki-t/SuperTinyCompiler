@@ -56,3 +56,12 @@ test('tokenize strings', () => {
     )
 })
 
+test('tokenize names', () => {
+    const code = 'add';
+    expect(tokenizer(code)).toEqual(
+        [{
+            type: 'name',
+            value: 'add'
+        }]
+    )
+})
