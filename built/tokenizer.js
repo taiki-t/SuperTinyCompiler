@@ -37,12 +37,15 @@ function tokenizer(input) {
         }
         if (char === '"') {
             let value = '';
+            // skip opening double quote
             char = input[++current];
             while (char !== '"') {
                 value += char;
                 char = input[++current];
             }
             tokens.push({ type: 'string', value });
+            // skip the closing double quote
+            char = input[++current];
             continue;
         }
         const LETTERS = /[a-z]/i;

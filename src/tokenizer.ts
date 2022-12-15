@@ -60,6 +60,7 @@ function tokenizer(input: string): Tokens {
         if (char === '"') {
             let value = '';
 
+            // skip opening double quote
             char = input[++current];
 
             while (char !== '"') {
@@ -68,6 +69,9 @@ function tokenizer(input: string): Tokens {
             }
 
             tokens.push({ type: 'string', value})
+
+            // skip the closing double quote
+            char = input[++current]
 
             continue;
         }
