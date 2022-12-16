@@ -1,6 +1,6 @@
 const tokenizer = require('../built/tokenizer');
 
-test('tokenize left parenthesis', () => {
+test('tokenize the opening parenthesis', () => {
     const code = '('
     expect(tokenizer(code)).toEqual(
         [{
@@ -10,7 +10,7 @@ test('tokenize left parenthesis', () => {
     )
 })
 
-test('tokenize right parenthesis', () => {
+test('tokenize the closing parenthesis', () => {
     const code = ')'
     expect(tokenizer(code)).toEqual(
         [{
