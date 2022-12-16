@@ -70,3 +70,14 @@ test('tokenize an empty string to an empty array', () => {
     const code = '';
     expect(tokenizer(code)).toEqual([])
 })
+
+test('tokenize a series of tokenTypes', () => {
+    const code = '(add 2 2)';
+    expect(tokenizer(code)).toEqual([
+        { type: 'paren', value: '(' }, 
+        { type: 'name', value: 'add' },
+        { type: 'number', value: '2' },
+        { type: 'number', value: '2' },
+        { type: 'paren', value: ')' }
+    ])
+})
