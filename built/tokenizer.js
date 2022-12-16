@@ -1,4 +1,6 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.tokenizer = void 0;
 function tokenizer(input) {
     let current = 0;
     let tokens = [];
@@ -62,4 +64,4 @@ function tokenizer(input) {
     }
     return tokens;
 }
-module.exports = tokenizer;
+exports.tokenizer = tokenizer;

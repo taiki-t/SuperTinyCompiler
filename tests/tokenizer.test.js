@@ -1,4 +1,4 @@
-const tokenizer = require('../built/tokenizer');
+const tokenizer = require('../built/tokenizer').tokenizer;
 
 test('tokenize the opening parenthesis', () => {
     const code = '('

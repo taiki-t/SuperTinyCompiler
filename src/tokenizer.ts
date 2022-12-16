@@ -96,4 +96,5 @@ function tokenizer(input: string): Tokens {
     return tokens;
 }
 
-module.exports = tokenizer;
+export { tokenizer };
+export type { Tokens, Token ,TokenType };
