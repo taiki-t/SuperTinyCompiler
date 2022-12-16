@@ -21,14 +21,61 @@ interface AST {
 function parser(tokens: Tokens): AST {
     let current = 0;
 
-    function incrementCurrent() :void {
-        current++;
-    }
+    function walk(): Node {
+        let token = tokens[current];
+        if (token == null) {
+            throw new TypeError(token)
+        };
 
-    function currentToken() :Token {
-        const token = tokens[current];
-        if (token == null) { throw Error(`No token at: ${current}`) }
-        return token;
+        if (token.type === 'number') {
+            current++;
+
+            return {
+                type: 'NumberLiteral',
+                value: token.value,
+            }
+        }
+
+        if (token.type == 'string') {
+            current++;
+
+            return {
+                type: 'StringLiteral',
+                value: token.value,
+            }
+        }
+
+        if (
+            token.type === 'paren' &&
+            token.value === '('
+        ) {
+            token = tokens[++current];
+            if (token == null) {
+                throw new Error(`Token does not exist for the index: ${current}`)
+            }
+
+            let node: ExpressionNode = {
+                type: 'CallExpression',
+                name: token.value,
+                params: [],
+            }
+
+            token = tokens[++current];
+
+            while (
+                token?.type !== 'paren' ||
+                token?.type === 'paren' && token.value !== ')'
+            ) {
+                node.params.push(walk());
+                token = tokens[current];
+            }
+
+            current++;
+
+            return node;
+        }
+
+        throw new TypeError(`Unknown token type: ${token.type}`);
     }
 
     let ast: AST = {
@@ -37,70 +84,10 @@ function parser(tokens: Tokens): AST {
     }
 
     while (current < tokens.length) {
-        let token = tokens[current];
-        if (token == null) { break };
-
-        ast.body.push(walk(token, incrementCurrent, currentToken))
+        ast.body.push(walk())
     }
 
     return ast;
-}
-
-function walk(token: Token, incrementCurrent: () => void, currentToken: () => Token): Node {
-    if (token == null) {
-        throw new TypeError(token)
-    };
-
-    if (token.type === 'number') {
-        incrementCurrent()
-
-        return {
-            type: 'NumberLiteral',
-            value: token.value,
-        }
-    }
-
-    if (token.type == 'string') {
-        incrementCurrent()
-
-        return {
-            type: 'StringLiteral',
-            value: token.value,
-        }
-    }
-
-    if (
-        token.type === 'paren' &&
-        token.value === '('
-    ) {
-        incrementCurrent()
-        token = currentToken()
-        if (token == null) {
-            throw new Error("Token does not exist")
-        }
-
-        let node: ExpressionNode = {
-            type: 'CallExpression',
-            name: token.value,
-            params: [],
-        }
-
-        incrementCurrent()
-        token = currentToken()
-
-        while (
-            token?.type !== 'paren' ||
-            token?.type === 'paren' && token.value !== ')'
-        ) {
-            node.params.push(walk(token, incrementCurrent, currentToken));
-            token = currentToken();
-        }
-
-        incrementCurrent()
-
-        return node;
-    }
-    throw new TypeError(`Unknown token type: ${token.type}`);
 }
 
 export { parser };
