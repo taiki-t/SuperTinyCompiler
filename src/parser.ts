@@ -1,7 +1,7 @@
 import { Tokens, Token } from "./tokenizer";
 
 interface LiteralNode {
-    type: string;
+    type: 'NumberLiteral' | 'StringLiteral';
     value: Token['value'];
 }
 
