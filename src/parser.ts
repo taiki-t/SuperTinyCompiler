@@ -5,10 +5,16 @@ interface LiteralNode {
     value: Token['value'];
 }
 
-interface ExpressionNode {
+class ExpressionNode {
     type: 'CallExpression';
     name: Token['value'];
     params: Array<Node> ;
+
+    constructor(value: Token['value']) {
+        this.type = 'CallExpression';
+        this.name = value;
+        this.params = [];
+    }
 }
 
 type Node = ExpressionNode | LiteralNode;
@@ -18,76 +24,133 @@ interface AST {
     body: Array<Node>
 }
 
-function parser(tokens: Tokens): AST {
-    let current = 0;
+class NumberLiteral {
+    type: LiteralNode['type'] =  'NumberLiteral';
+    value: Token['value'];
 
-    function walk(): Node {
-        let token = tokens[current];
-        if (token == null) {
-            throw new TypeError(token)
-        };
+    constructor(value: Token['value']) {
+        this.value = value
+    }
+}
+class StringLiteral {
+    type: LiteralNode['type'] =  'StringLiteral';
+    value: Token['value'];
 
-        if (token.type === 'number') {
-            current++;
+    constructor(value: Token['value']) {
+        this.value = value
+    }
+}
 
-            return {
-                type: 'NumberLiteral',
-                value: token.value,
-            }
+class WrappedToken  {
+    type: Token['type']; 
+    value: string;
+
+    constructor(token: Token) {
+        this.type = token.type;
+        this.value = token.value;
+    }
+
+    toLiteralNode(): LiteralNode {
+        if (this.isNumber()) {
+            return new NumberLiteral(this.value) as LiteralNode
         }
 
-        if (token.type == 'string') {
-            current++;
-
-            return {
-                type: 'StringLiteral',
-                value: token.value,
-            }
+        if (this.isString()) {
+            return new StringLiteral(this.value) as LiteralNode
         }
 
-        if (
-            token.type === 'paren' &&
-            token.value === '('
-        ) {
-            token = tokens[++current];
-            if (token == null) {
-                throw new Error(`Token does not exist for the index: ${current}`)
+        throw new TypeError(`Invalid token: ${this.type} is invalid.`)
+    }
+
+    toExpressionNode(): ExpressionNode {
+        return new ExpressionNode(this.value);
+    }
+    
+    isLiteral() :boolean {
+       return this.isNumber() || this.isString()
+    }
+
+    isNumber() :boolean {
+        return this.type === 'number'
+    }
+
+    isString() :boolean {
+        return this.type === 'string'
+    }
+
+    isOpeningParen(): boolean {
+        return this.type === 'paren' && this.value === '('
+    }
+
+    isClosingParen(): boolean {
+        return this.type === 'paren' && this.value === ')'
+    }
+}
+
+class Parser {
+    static parser: (tokens: Tokens) => AST = (tokens: Tokens) => { return new Parser(tokens).parse() }
+    current: number;
+    tokens: Tokens;
+    constructor(tokens: Tokens) {
+        this.current = 0;
+        this.tokens = tokens;
+    }
+
+    parse(): AST {
+        let ast: AST = {
+            type: 'Program',
+            body: [],
+        }
+
+        while (this.current < this.tokens.length) {
+            ast.body.push(this.walk())
+        }
+
+        return ast;
+    }
+    
+    private walk(): Node {
+        let token = this.getToken()
+
+        if (token.isLiteral()) {
+            this.current++;
+            return token.toLiteralNode()
+        }
+
+        if (token.isOpeningParen()) {
+            token = this.getNextToken()
+
+            let node = token.toExpressionNode();
+
+            token = this.getNextToken()
+
+            while (!token.isClosingParen()) {
+                node.params.push(this.walk());
+                token = this.getToken();
             }
 
-            let node: ExpressionNode = {
-                type: 'CallExpression',
-                name: token.value,
-                params: [],
-            }
-
-            token = tokens[++current];
-
-            while (
-                token?.type !== 'paren' ||
-                token?.type === 'paren' && token.value !== ')'
-            ) {
-                node.params.push(walk());
-                token = tokens[current];
-            }
-
-            current++;
-
+            this.current++;
             return node;
         }
 
         throw new TypeError(`Unknown token type: ${token.type}`);
     }
 
-    let ast: AST = {
-        type: 'Program',
-        body: [],
+    private getNextToken(): WrappedToken {
+        this.current++;
+        return this.getToken()
     }
 
-    while (current < tokens.length) {
-        ast.body.push(walk())
+    private getToken(): WrappedToken {
+        const token = this.tokens[this.current];
+        if (token == null) {
+            throw new TypeError(token)
+        };
+        return new WrappedToken(token);
     }
-
-    return ast;
 }
+
+
+const parser = Parser.parser
 
 export { parser };
