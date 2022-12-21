@@ -129,3 +129,6 @@ test('parse an nested call expression', () => {
         }
     )
 })
+
+// LiteralNode | ExpressionNode
+// ExpressionNode['params'] :LiteralNode | ExpressionNode 

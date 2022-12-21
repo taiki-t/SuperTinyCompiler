@@ -1,30 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.parser = void 0;
-class ExpressionNode {
-    type;
-    name;
-    params;
-    constructor(value) {
-        this.type = 'CallExpression';
-        this.name = value;
-        this.params = [];
-    }
-}
-class NumberLiteral {
-    type = 'NumberLiteral';
-    value;
-    constructor(value) {
-        this.value = value;
-    }
-}
-class StringLiteral {
-    type = 'StringLiteral';
-    value;
-    constructor(value) {
-        this.value = value;
-    }
-}
 class WrappedToken {
     type;
     value;
@@ -33,16 +9,24 @@ class WrappedToken {
         this.value = token.value;
     }
     toLiteralNode() {
-        if (this.isNumber()) {
-            return new NumberLiteral(this.value);
-        }
-        if (this.isString()) {
-            return new StringLiteral(this.value);
+        const tokenTypeToAstType = {
+            number: 'NumberLiteral',
+            string: 'StringLiteral',
+        };
+        if (this.type === 'number' || this.type === 'string') {
+            return {
+                type: tokenTypeToAstType[this.type],
+                value: this.value,
+            };
         }
         throw new TypeError(`Invalid token: ${this.type} is invalid.`);
     }
     toExpressionNode() {
-        return new ExpressionNode(this.value);
+        return {
+            type: 'CallExpression',
+            name: this.value,
+            params: []
+        };
     }
     isLiteral() {
         return this.isNumber() || this.isString();

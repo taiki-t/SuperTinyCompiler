@@ -1,20 +1,15 @@
-import { Tokens, Token } from "./tokenizer";
+import { Tokens, Token, TokenType } from "./tokenizer";
 
+type LiteralTypes = 'NumberLiteral' | 'StringLiteral'
 interface LiteralNode {
-    type: 'NumberLiteral' | 'StringLiteral';
+    type: LiteralTypes;
     value: Token['value'];
 }
 
-class ExpressionNode {
+interface ExpressionNode {
     type: 'CallExpression';
     name: Token['value'];
     params: Array<Node> ;
-
-    constructor(value: Token['value']) {
-        this.type = 'CallExpression';
-        this.name = value;
-        this.params = [];
-    }
 }
 
 type Node = ExpressionNode | LiteralNode;
@@ -23,25 +18,7 @@ interface AST {
     type: 'Program',
     body: Array<Node>
 }
-
-class NumberLiteral {
-    type: LiteralNode['type'] =  'NumberLiteral';
-    value: Token['value'];
-
-    constructor(value: Token['value']) {
-        this.value = value
-    }
-}
-class StringLiteral {
-    type: LiteralNode['type'] =  'StringLiteral';
-    value: Token['value'];
-
-    constructor(value: Token['value']) {
-        this.value = value
-    }
-}
-
-class WrappedToken  {
+class WrappedToken implements Token {
     type: Token['type']; 
     value: string;
 
@@ -51,30 +28,39 @@ class WrappedToken  {
     }
 
     toLiteralNode(): LiteralNode {
-        if (this.isNumber()) {
-            return new NumberLiteral(this.value) as LiteralNode
+        const tokenTypeToAstType: Pick<Record<TokenType, LiteralTypes>, "number" | "string"> = {
+            number: 'NumberLiteral',
+            string: 'StringLiteral',
         }
 
-        if (this.isString()) {
-            return new StringLiteral(this.value) as LiteralNode
+        if (this.type === 'number' || this.type === 'string') {
+            return {
+                type: tokenTypeToAstType[this.type],
+                value: this.value,
+            }
         }
+
 
         throw new TypeError(`Invalid token: ${this.type} is invalid.`)
     }
 
     toExpressionNode(): ExpressionNode {
-        return new ExpressionNode(this.value);
+        return {
+            type: 'CallExpression',
+            name: this.value,
+            params: []
+        }
     }
     
     isLiteral() :boolean {
        return this.isNumber() || this.isString()
     }
 
-    isNumber() :boolean {
+    private isNumber() :boolean {
         return this.type === 'number'
     }
 
-    isString() :boolean {
+    private isString() :boolean {
         return this.type === 'string'
     }
 
