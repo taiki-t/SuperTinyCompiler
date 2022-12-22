@@ -92,4 +92,5 @@ class Transformer {
 }
 
 const transformer = Transformer.transformer
-export { transformer }
+export type { NewAST, ExpressionStatementNode, LiteralNode }
+export { transformer };
