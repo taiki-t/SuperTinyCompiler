@@ -139,4 +139,5 @@ class Parser {
 
 const parser = Parser.parser
 
+export type { AST, Node };
 export { parser };
