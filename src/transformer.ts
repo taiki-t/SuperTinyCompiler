@@ -31,6 +31,29 @@ class Transformer {
         return ['NumberLiteral', 'StringLiteral'].includes(node.type)
     }
 
+    private traverse(originalNode: Node, transformedNodeParent: ExpressionStatementNode['expression']): void {
+        if (this.isLiteralNode(originalNode)) {
+            transformedNodeParent.arguments.push(originalNode)
+        }
+
+        if (originalNode.type === 'CallExpression') {
+            const expressionNode: ExpressionStatementNode['expression'] = {
+                type: "CallExpression",
+                callee: {
+                    type: "Identifier",
+                    name: originalNode.name,
+                },
+                arguments: []
+            }
+
+            originalNode.params.forEach(node => {
+                this.traverse(node, expressionNode)
+            })
+
+            transformedNodeParent.arguments.push(expressionNode)
+        }
+    }
+
     toNewAST(): NewAST {
         const newAST: NewAST = {
             type: 'Program',
@@ -57,33 +80,7 @@ class Transformer {
                  }
 
                  node.params.forEach(node => {
-                     if (this.isLiteralNode(node)) {
-                         expressionStatementNode.expression.arguments.push(node)
-                     }
-
-                     if (node.type === 'CallExpression') {
-
-                         const innerExpressionStatementNode: ExpressionStatementNode = {
-                             type: 'ExpressionStatement',
-                             expression: {
-                                 type: 'CallExpression',
-                                 callee: {
-                                     type: 'Identifier',
-                                     name: node.name,
-                                 },
-                                 arguments: [],
-                             }
-                         }
-                         const expressionNode: ExpressionStatementNode['expression'] = innerExpressionStatementNode.expression;
-
-                         node.params.forEach(node => {
-                             if (this.isLiteralNode(node)) {
-                                 expressionNode.arguments.push(node)
-                             }
-                         })
-
-                         expressionStatementNode.expression.arguments.push(expressionNode);
-                     }
+                    this.traverse(node, expressionStatementNode.expression)
                  })
 
                  newAST.body.push(expressionStatementNode);

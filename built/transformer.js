@@ -10,6 +10,25 @@ class Transformer {
     isLiteralNode(node) {
         return ['NumberLiteral', 'StringLiteral'].includes(node.type);
     }
+    traverse(originalNode, transformedNodeParent) {
+        if (this.isLiteralNode(originalNode)) {
+            transformedNodeParent.arguments.push(originalNode);
+        }
+        if (originalNode.type === 'CallExpression') {
+            const expressionNode = {
+                type: "CallExpression",
+                callee: {
+                    type: "Identifier",
+                    name: originalNode.name,
+                },
+                arguments: []
+            };
+            originalNode.params.forEach(node => {
+                this.traverse(node, expressionNode);
+            });
+            transformedNodeParent.arguments.push(expressionNode);
+        }
+    }
     toNewAST() {
         const newAST = {
             type: 'Program',
@@ -32,29 +51,7 @@ class Transformer {
                     }
                 };
                 node.params.forEach(node => {
-                    if (this.isLiteralNode(node)) {
-                        expressionStatementNode.expression.arguments.push(node);
-                    }
-                    if (node.type === 'CallExpression') {
-                        const innerExpressionStatementNode = {
-                            type: 'ExpressionStatement',
-                            expression: {
-                                type: 'CallExpression',
-                                callee: {
-                                    type: 'Identifier',
-                                    name: node.name,
-                                },
-                                arguments: [],
-                            }
-                        };
-                        const expressionNode = innerExpressionStatementNode.expression;
-                        node.params.forEach(node => {
-                            if (this.isLiteralNode(node)) {
-                                expressionNode.arguments.push(node);
-                            }
-                        });
-                        expressionStatementNode.expression.arguments.push(expressionNode);
-                    }
+                    this.traverse(node, expressionStatementNode.expression);
                 });
                 newAST.body.push(expressionStatementNode);
             }
