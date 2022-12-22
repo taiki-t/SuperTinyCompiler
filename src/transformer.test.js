@@ -81,7 +81,7 @@ test('transform ast with an expression node in body', () => {
     expect(transformer(originalAST).toNewAST()).toEqual(transformedAST)
 })
 
-test.skip('transform ast with an expression node in arguments of an expression', () => {
+test('transform ast with an expression node in arguments of an expression', () => {
     const originalAST = {
         type: 'Program',
         body: [

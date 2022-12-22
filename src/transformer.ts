@@ -8,7 +8,7 @@ interface ExpressionStatementNode {
             type: 'Identifier';
             name: string;
         },
-        arguments: Array<Node>;
+        arguments: Array<LiteralNode | ExpressionStatementNode['expression']>;
     }
 }
 
@@ -57,7 +57,33 @@ class Transformer {
                  }
 
                  node.params.forEach(node => {
-                    expressionStatementNode.expression.arguments.push(node)
+                     if (this.isLiteralNode(node)) {
+                         expressionStatementNode.expression.arguments.push(node)
+                     }
+
+                     if (node.type === 'CallExpression') {
+
+                         const innerExpressionStatementNode: ExpressionStatementNode = {
+                             type: 'ExpressionStatement',
+                             expression: {
+                                 type: 'CallExpression',
+                                 callee: {
+                                     type: 'Identifier',
+                                     name: node.name,
+                                 },
+                                 arguments: [],
+                             }
+                         }
+                         const expressionNode: ExpressionStatementNode['expression'] = innerExpressionStatementNode.expression;
+
+                         node.params.forEach(node => {
+                             if (this.isLiteralNode(node)) {
+                                 expressionNode.arguments.push(node)
+                             }
+                         })
+
+                         expressionStatementNode.expression.arguments.push(expressionNode);
+                     }
                  })
 
                  newAST.body.push(expressionStatementNode);
