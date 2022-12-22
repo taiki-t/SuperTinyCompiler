@@ -1,4 +1,6 @@
 const transformer = require('../built/transformer').transformer
+const parser = require('../built/parser').parser
+const tokenizer = require('../built/tokenizer').tokenizer
 
 
 test ('transfrom empty body ast', () => {
@@ -102,6 +104,43 @@ test('transform ast with an expression node in arguments of an expression', () =
             },
         ]
     }
+
+    const transformedAST = {
+        type: 'Program',
+        body: [
+            {
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'CallExpression',
+                    callee: {
+                        type: 'Identifier',
+                        name: 'add'
+                    },
+                    arguments: [
+                        { type: 'NumberLiteral', value: '1' },
+                        {
+                            type: 'CallExpression',
+                            callee: {
+                                type: 'Identifier',
+                                name: 'subtract'
+                            },
+                            arguments: [
+                                { type: 'NumberLiteral', value: '2' },
+                                { type: 'NumberLiteral', value: '1' },
+                            ]
+                        }
+                    ]
+                }
+            },
+        ]
+    }
+
+    expect(transformer(originalAST).toNewAST()).toEqual(transformedAST)
+})
+
+test('works with the token and the parser', () => {
+    const tokens = tokenizer('(add 1 (subtract 2 1))');
+    const originalAST = parser(tokens);
 
     const transformedAST = {
         type: 'Program',
